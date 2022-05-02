@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prow-job-scraper"
+description = "Scrape Prow for job results and export them to elasticsearch"
+readme = "README.md"
+keywords = ["prow"]
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dependencies = [
+    "requests",
+    "google-cloud-storage",
+    "junitparser",
+    "pydantic",
+    "elasticsearch",
+    "elasticsearch-async"
+]
+dynamic = ["version"]
+
+[project.scripts]
+prow-job-scraper = "prowjobscraper.main:main"
