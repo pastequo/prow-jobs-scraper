@@ -3,7 +3,7 @@ from datetime import timedelta
 from google.cloud import exceptions, storage
 from junitparser import Failure, JUnitXml
 from prowjob import ProwJob
-from pydantic import BaseModel
+from pydantic import BaseModel, HttpUrl, NoneStr
 
 
 class JobStep(BaseModel):
@@ -14,15 +14,21 @@ class JobStep(BaseModel):
     details: str = None
 
 
+def get_bucket_and_path_to_junit(url: HttpUrl) -> tuple[str, str]:
+    http_path = url.path.split("/")
+    bucket_name = http_path[3]
+    blob_path = url.path.split("/")[4:] + ["artifacts", "junit_operator.xml"]
+
+    return bucket_name, "/".join(blob_path)
+
+
 def download_junit(job: ProwJob) -> str:
-    http_path = job.status.url.path.split("/")
-    bucket = http_path[3]
-    blob_path = job.status.url.path.split("/")[4:] + ["artifacts", "junit_operator.xml"]
+    bucket_name, blob_path = get_bucket_and_path_to_junit(job.status.url)
 
     storage_client = storage.Client.create_anonymous_client()
-    bucket = storage_client.bucket(bucket)
-    blob = bucket.blob("/".join(blob_path))
-    return blob.download_as_string()
+    gcs_bucket = storage_client.bucket(bucket_name)
+    gcs_blob = gcs_bucket.blob(blob_path)
+    return gcs_blob.download_as_string()
 
 
 def parse_junit_suite_into_steps(job: ProwJob, junit: str) -> list[JobStep]:

@@ -1,7 +1,9 @@
+import re
 from datetime import datetime
+from typing import Optional
 
 import requests
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, NoneStr
 
 
 class ProwJobSpec(BaseModel):
@@ -10,8 +12,8 @@ class ProwJobSpec(BaseModel):
 
 
 class ProwJobStatus(BaseModel):
-    state: str = None
-    url: HttpUrl = None
+    state: str = NoneStr
+    url: HttpUrl = Optional[HttpUrl]
     startTime: datetime = None
     pendingTime: datetime = None
     completionTime: datetime = None
@@ -27,10 +29,21 @@ class ProwJobs(BaseModel):
     items: list[ProwJob]
 
 
-def retrieve_prowjobs(url: str) -> ProwJobs:
+def is_assisted_job(j: ProwJob) -> bool:
+    if j.status.state not in ("success", "failure"):
+        return False
+    elif not re.search("e2e-.*-assisted", j.spec.job):
+        return False
+
+    return True
+
+
+def prowjobs_from_url(url: str) -> ProwJobs:
     r = requests.get(url)
-    return create_prowjobs(r.text)
+    return prowjobs_from_string(r.text)
 
 
-def create_prowjobs(data: str) -> ProwJobs:
-    return ProwJobs.parse_raw(data)
+def prowjobs_from_string(data: str) -> ProwJobs:
+    jobs = ProwJobs.parse_raw(data)
+    jobs.items[:] = [j for j in jobs.items if is_assisted_job(j)]
+    return jobs

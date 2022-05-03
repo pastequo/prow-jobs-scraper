@@ -1,11 +1,12 @@
+import os
 from datetime import datetime
 from os import environ
-import os
+
 from elasticsearch import Elasticsearch
 from pydantic import BaseModel
 from step import JobStep
 
-# (job_name, build_id, job_duration, job_state, step_name, step_duration, step_state)
+
 class Event(BaseModel):
     build_id: str
     job_duration: int
@@ -26,7 +27,10 @@ class EventStoreElastic:
             verify_certs=False,
             ssl_show_warn=False,
         )
-        self._index = os.environ["ES_INDEX"]
+
+        # Let's create one index per week
+        now = datetime.now()
+        self._index = "{}-{}".format(os.environ["ES_INDEX"], now.strftime("%Y.%W"))
         print(self._client.info())
 
     def push(self, step: JobStep) -> None:
@@ -39,15 +43,15 @@ class EventStoreElastic:
 
     @staticmethod
     def event_from_step(step: JobStep) -> Event:
+        job_duration = step.job.status.completionTime - step.job.status.startTime
         return Event(
             build_id=step.job.status.build_id,
-            job_duration=step.job.status.completionTime.second
-            - step.job.status.startTime.second,
+            job_duration=job_duration.seconds,
             job_name=step.job.spec.job,
             job_start_time=step.job.status.startTime,
             job_state=step.job.status.state,
             job_type=step.job.spec.type,
-            step_duration=step.duration.microseconds,
+            step_duration=step.duration.seconds,
             step_name=step.name,
             step_state=step.state,
         )
