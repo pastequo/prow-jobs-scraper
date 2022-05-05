@@ -1,8 +1,9 @@
 from datetime import timedelta
+from typing import Optional
 
 from google.cloud import exceptions, storage
 from junitparser import Failure, JUnitXml
-from pydantic import BaseModel, HttpUrl, NoneStr
+from pydantic import BaseModel, HttpUrl
 
 from prowjobscraper.prowjob import ProwJob
 
@@ -12,7 +13,7 @@ class JobStep(BaseModel):
     name: str
     state: str
     duration: timedelta
-    details: NoneStr = None
+    details: Optional[str] = None
 
 
 def get_bucket_and_path_to_junit(url: HttpUrl) -> tuple[str, str]:

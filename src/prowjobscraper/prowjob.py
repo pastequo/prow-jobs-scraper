@@ -1,10 +1,9 @@
 import re
 from datetime import datetime
 from typing import Optional
-import black
 
 import requests
-from pydantic import BaseModel, HttpUrl, NoneStr
+from pydantic import BaseModel, HttpUrl
 
 
 class ProwJobSpec(BaseModel):
@@ -13,13 +12,13 @@ class ProwJobSpec(BaseModel):
 
 
 class ProwJobStatus(BaseModel):
-    state: NoneStr = None
+    state: Optional[str] = None
     url: Optional[HttpUrl] = None
     startTime: Optional[datetime] = None
     pendingTime: Optional[datetime] = None
     completionTime: Optional[datetime] = None
     build_id: Optional[int] = None
-    description: NoneStr = None
+    description: Optional[str] = None
 
 
 class ProwJob(BaseModel):
