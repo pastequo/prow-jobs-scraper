@@ -126,6 +126,6 @@ class EventStoreElastic:
             self._client,
             index=f"{self._job_index},{self._previous_job_index}",
             ignore_unavailable=True,
-            query={"_source": False, "fields": ["build_id"]},
+            query={"_source": False, "fields": ["job.build_id"]},
         )
-        return {int(build_id) for r in results for build_id in r["fields"]["build_id"]}
+        return {int(build_id) for r in results for build_id in r["fields"]["job.build_id"]}
