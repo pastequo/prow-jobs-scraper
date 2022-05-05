@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from typing import Optional
+import black
 
 import requests
 from pydantic import BaseModel, HttpUrl, NoneStr
@@ -12,12 +13,13 @@ class ProwJobSpec(BaseModel):
 
 
 class ProwJobStatus(BaseModel):
-    state: str = NoneStr
-    url: HttpUrl = Optional[HttpUrl]
-    startTime: datetime = None
-    pendingTime: datetime = None
-    completionTime: datetime = None
-    build_id: int = None
+    state: NoneStr = None
+    url: Optional[HttpUrl] = None
+    startTime: Optional[datetime] = None
+    pendingTime: Optional[datetime] = None
+    completionTime: Optional[datetime] = None
+    build_id: Optional[int] = None
+    description: NoneStr = None
 
 
 class ProwJob(BaseModel):
@@ -33,6 +35,10 @@ def is_assisted_job(j: ProwJob) -> bool:
     if j.status.state not in ("success", "failure"):
         return False
     elif not re.search("e2e-.*-assisted", j.spec.job):
+        return False
+    elif j.status.description and "Overridden" in j.status.description:
+        # exclude overrriden builds
+        # the url points to github instead of prow
         return False
 
     return True
