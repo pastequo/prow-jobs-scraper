@@ -16,8 +16,7 @@ dependencies = [
     "google-cloud-storage",
     "junitparser",
     "pydantic",
-    "elasticsearch",
-    "elasticsearch-async"
+    "opensearch-py",
 ]
 dynamic = ["version"]
 

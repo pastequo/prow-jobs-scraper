@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Iterator
 
-from elasticsearch import Elasticsearch, helpers
+from opensearchpy import OpenSearch, helpers
 from pydantic import BaseModel
 
 from prowjobscraper.prowjob import ProwJob
@@ -63,7 +63,7 @@ class StepEvent(BaseModel):
 
 class EventStoreElastic:
     def __init__(self):
-        self._client = Elasticsearch(
+        self._client = OpenSearch(
             os.environ["ES_URL"],
             http_auth=(os.environ["ES_USER"], os.environ["ES_PASSWORD"]),
             verify_certs=False,
