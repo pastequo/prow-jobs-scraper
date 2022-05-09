@@ -2,6 +2,7 @@ import os
 from datetime import datetime, timedelta
 from typing import Any, Iterator
 
+import pkg_resources
 from opensearchpy import OpenSearch, helpers
 from pydantic import BaseModel
 
@@ -70,62 +71,59 @@ class EventStoreElastic:
             ssl_show_warn=False,
         )
 
+        self._jobs_index = _EsIndex(self._client, os.environ["ES_JOB_INDEX"])
+        self._steps_index = _EsIndex(self._client, os.environ["ES_STEP_INDEX"])
+
+    def index_job_steps(self, steps: list[JobStep]):
+        step_events = (StepEvent.create_from_job_step(s).dict() for s in steps)
+        self._steps_index.index(step_events)
+
+    def index_prowjobs(self, jobs: list[ProwJob]):
+        job_events = (JobEvent.create_from_prowjob(j).dict() for j in jobs)
+        self._jobs_index.index(job_events)
+
+    def scan_build_ids(self) -> set[str]:
+        results = self._jobs_index.scan({"_source": ["job.build_id"]})
+        return {r["_source"]["job"]["build_id"] for r in results}
+
+
+class _EsIndex:
+    def __init__(self, client: OpenSearch, name: str):
+        self._client = client
+
         # Let's create one index per week
         now = datetime.now()
-        self._step_index = "{}-{}".format(
-            os.environ["ES_STEP_INDEX"], now.strftime("%Y.%W")
-        )
-        self._job_index = "{}-{}".format(
-            os.environ["ES_JOB_INDEX"], now.strftime("%Y.%W")
-        )
+        self._index_name = "{}-{}".format(name, now.strftime("%Y.%W"))
 
         a_week_ago = now - timedelta(weeks=1)
-        self._previous_job_index = "{}-{}".format(
-            os.environ["ES_JOB_INDEX"], a_week_ago.strftime("%Y.%W")
-        )
+        self._previous_index_name = "{}-{}".format(name, a_week_ago.strftime("%Y.%W"))
 
-        print(self._client.info())
+        # apply the index template
+
+        index_schema = pkg_resources.resource_string(
+            __name__, f"indices/{name}_schema.json"
+        )
+        if not self._client.indices.exists(index=self._index_name):
+            self._client.indices.create(index=self._index_name, body=index_schema)
 
     def _gen_documents(
-        self, index: str, data: Iterator[dict[str, Any]]
+        self, data: Iterator[dict[str, Any]]
     ) -> Iterator[dict[str, Any]]:
         for d in data:
             yield {
-                "_index": index,
+                "_index": self._index_name,
                 **d,
             }
 
-    def index_job_steps(self, steps: list[JobStep]):
-        if not self._client.indices.exists(index=self._step_index):
-            self._client.indices.create(
-                index=self._step_index,  # body=self._step_schema
-            )
+    def index(self, data: Iterator[dict[str, Any]]) -> None:
+        helpers.bulk(self._client, self._gen_documents(data))
 
-        step_events = (StepEvent.create_from_job_step(s).dict() for s in steps)
-        helpers.bulk(
-            self._client, self._gen_documents(index=self._step_index, data=step_events)
-        )
+        self._client.indices.refresh(index=self._index_name)
 
-        self._client.indices.refresh(index=self._step_index)
-
-    def index_prowjobs(self, jobs: list[ProwJob]):
-        if not self._client.indices.exists(index=self._job_index):
-            self._client.indices.create(
-                index=self._job_index,  # body=self._job_schema
-            )
-
-        job_events = (JobEvent.create_from_prowjob(j).dict() for j in jobs)
-        helpers.bulk(
-            self._client, self._gen_documents(index=self._job_index, data=job_events)
-        )
-
-        self._client.indices.refresh(index=self._job_index)
-
-    def scan_build_ids(self) -> set[int]:
-        results = helpers.scan(
+    def scan(self, query: str) -> Iterator[Any]:
+        return helpers.scan(
             self._client,
-            index=f"{self._job_index},{self._previous_job_index}",
+            index=f"{self._index_name},{self._previous_index_name}",
             ignore_unavailable=True,
-            query={"_source": False, "fields": ["job.build_id"]},
+            query=query,
         )
-        return {int(build_id) for r in results for build_id in r["fields"]["job.build_id"]}

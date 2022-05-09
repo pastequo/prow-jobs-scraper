@@ -17,7 +17,7 @@ class ProwJobStatus(BaseModel):
     startTime: Optional[datetime] = None
     pendingTime: Optional[datetime] = None
     completionTime: Optional[datetime] = None
-    build_id: Optional[int] = None
+    build_id: Optional[str] = None
     description: Optional[str] = None
 
 
