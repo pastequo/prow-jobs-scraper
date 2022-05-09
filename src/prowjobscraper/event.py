@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timedelta
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional
 
 import pkg_resources
 from opensearchpy import OpenSearch, helpers
@@ -17,6 +17,7 @@ class JobDetails(BaseModel):
     start_time: datetime
     state: str
     type: str
+    url: str
 
 
 class JobEvent(BaseModel):
@@ -36,11 +37,13 @@ class JobEvent(BaseModel):
                 start_time=job.status.startTime,
                 state=job.status.state,
                 type=job.spec.type,
+                url=job.status.url,
             )
         )
 
 
 class StepDetails(BaseModel):
+    details: Optional[str]
     duration: int
     name: str
     state: str
@@ -55,6 +58,7 @@ class StepEvent(BaseModel):
         return cls(
             job=JobEvent.create_from_prowjob(step.job).job,
             step=StepDetails(
+                details=step.details,
                 duration=step.duration.seconds,
                 name=step.name,
                 state=step.state,
