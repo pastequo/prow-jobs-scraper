@@ -12,11 +12,11 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 dependencies = [
-    "requests",
-    "google-cloud-storage",
-    "junitparser",
-    "pydantic",
-    "opensearch-py",
+    "requests==2.27.1",
+    "google-cloud-storage==2.3.0",
+    "junitparser==2.5.0",
+    "pydantic==1.9.0",
+    "opensearch-py==1.1.0",
 ]
 dynamic = ["version"]
 
