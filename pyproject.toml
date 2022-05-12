@@ -9,10 +9,8 @@ name = "prow-job-scraper"
 description = "Scrape Prow for job results and export them to elasticsearch"
 readme = "README.md"
 keywords = ["prow"]
-license = {file = "LICENSE"}
-classifiers = [
-    "Programming Language :: Python :: 3",
-]
+license = { file = "LICENSE" }
+classifiers = ["Programming Language :: Python :: 3"]
 dependencies = [
     "requests==2.27.1",
     "google-cloud-storage==2.3.0",
@@ -24,3 +22,36 @@ dynamic = ["version"]
 
 [project.scripts]
 prow-job-scraper = "prowjobscraper.main:main"
+
+[project.optional-dependencies]
+test-runner = ["tox"]
+lint = ["black", "isort", "mypy"]
+
+[tool.tox]
+legacy_tox_ini = """
+[tox]
+envlist = clean,python3.9,report
+
+[testenv]
+usedevelop=True
+commands = pytest --cov=src --cov-append --cov-report=term-missing --junitxml=junit-{envname}.xml --junit-prefix={envname}
+deps = 
+    pytest
+    pytest-cov
+    pytest-httpserver
+depends =
+    {python3.9}: clean
+    report: python3.9
+
+[testenv:report]
+deps = coverage[toml]
+skip_install = true
+commands =
+    coverage report
+    coverage html
+
+[testenv:clean]
+deps = coverage[toml]
+skip_install = true
+commands = coverage erase
+"""

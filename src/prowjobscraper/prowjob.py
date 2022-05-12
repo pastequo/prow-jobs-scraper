@@ -1,4 +1,3 @@
-import re
 from datetime import datetime
 from typing import Optional
 
@@ -27,28 +26,19 @@ class ProwJob(BaseModel):
 
 
 class ProwJobs(BaseModel):
+    """
+    ProwJobs represents the data structure returned by Prow's API
+    (e.g.: https://prow.ci.openshift.org/prowjobs.js?omit=annotations,labels,decoration_config,pod_spec)
+    """
+
     items: list[ProwJob]
 
+    @classmethod
+    def create_from_url(cls, url: str) -> "ProwJobs":
+        r = requests.get(url)
+        return cls.create_from_string(r.text)
 
-def is_assisted_job(j: ProwJob) -> bool:
-    if j.status.state not in ("success", "failure"):
-        return False
-    elif not re.search("e2e-.*-assisted", j.spec.job):
-        return False
-    elif j.status.description and "Overridden" in j.status.description:
-        # exclude overrriden builds
-        # the url points to github instead of prow
-        return False
-
-    return True
-
-
-def prowjobs_from_url(url: str) -> ProwJobs:
-    r = requests.get(url)
-    return prowjobs_from_string(r.text)
-
-
-def prowjobs_from_string(data: str) -> ProwJobs:
-    jobs = ProwJobs.parse_raw(data)
-    jobs.items[:] = [j for j in jobs.items if is_assisted_job(j)]
-    return jobs
+    @classmethod
+    def create_from_string(cls, data) -> "ProwJobs":
+        jobs = cls.parse_raw(data)
+        return jobs

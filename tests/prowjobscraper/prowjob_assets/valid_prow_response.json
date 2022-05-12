@@ -1,0 +1,59 @@
+{
+  "items": [
+    {
+      "kind": "ProwJob",
+      "apiVersion": "prow.k8s.io/v1",
+      "metadata": {
+        "name": "24efaa78-d063-11ec-b354-0a580a831155",
+        "namespace": "ci",
+        "uid": "9c184f49-99dc-4f72-b8c3-36cf1c87ed2b",
+        "resourceVersion": "1983743259",
+        "generation": 6,
+        "creationTimestamp": "2022-05-10T13:14:38Z"
+      },
+      "spec": {
+        "type": "postsubmit",
+        "agent": "kubernetes",
+        "cluster": "build04",
+        "namespace": "ci",
+        "job": "branch-ci-stolostron-console-release-2.5-images",
+        "refs": {
+          "org": "stolostron",
+          "repo": "console",
+          "repo_link": "https://github.com/stolostron/console",
+          "base_ref": "release-2.5",
+          "base_sha": "14ad2c2590e6f5df3a81929005aa8a932b0b1034",
+          "base_link": "https://github.com/stolostron/console/compare/46badd5add97...14ad2c2590e6"
+        },
+        "report": true,
+        "context": "branch-ci-stolostron-console-release-2.5-images",
+        "max_concurrency": 1,
+        "pod_spec": {
+          "containers": [
+            {
+              "name": "",
+              "resources": {}
+            }
+          ]
+        },
+        "prowjob_defaults": {
+          "tenant_id": "GlobalDefaultID"
+        }
+      },
+      "status": {
+        "startTime": "2022-05-10T13:14:38Z",
+        "pendingTime": "2022-05-10T13:14:38Z",
+        "state": "pending",
+        "description": "Job triggered.",
+        "url": "https://prow.ci.openshift.org/view/gs/origin-ci-test/logs/branch-ci-stolostron-console-release-2.5-images/1524015053345394688",
+        "pod_name": "24efaa78-d063-11ec-b354-0a580a831155",
+        "build_id": "1524015053345394688",
+        "prev_report_states": {
+          "gcsk8sreporter": "pending",
+          "gcsreporter": "pending",
+          "github-reporter": "pending"
+        }
+      }
+    }
+  ]
+}

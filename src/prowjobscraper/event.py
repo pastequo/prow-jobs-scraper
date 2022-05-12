@@ -1,4 +1,3 @@
-import os
 from datetime import datetime, timedelta
 from typing import Any, Iterator, Optional
 
@@ -24,7 +23,7 @@ class JobEvent(BaseModel):
     job: JobDetails
 
     @classmethod
-    def create_from_prowjob(cls, job: ProwJob):
+    def create_from_prow_job(cls, job: ProwJob):
         job_duration = timedelta(seconds=0)
         if job.status.completionTime and job.status.startTime:
             job_duration = job.status.completionTime - job.status.startTime
@@ -56,7 +55,7 @@ class StepEvent(BaseModel):
     @classmethod
     def create_from_job_step(cls, step: JobStep):
         return cls(
-            job=JobEvent.create_from_prowjob(step.job).job,
+            job=JobEvent.create_from_prow_job(step.job).job,
             step=StepDetails(
                 details=step.details,
                 duration=step.duration.seconds,
@@ -67,23 +66,16 @@ class StepEvent(BaseModel):
 
 
 class EventStoreElastic:
-    def __init__(self):
-        self._client = OpenSearch(
-            os.environ["ES_URL"],
-            http_auth=(os.environ["ES_USER"], os.environ["ES_PASSWORD"]),
-            verify_certs=False,
-            ssl_show_warn=False,
-        )
-
-        self._jobs_index = _EsIndex(self._client, os.environ["ES_JOB_INDEX"])
-        self._steps_index = _EsIndex(self._client, os.environ["ES_STEP_INDEX"])
+    def __init__(self, client, job_index_basename, step_index_basename):
+        self._jobs_index = _EsIndex(client, job_index_basename)
+        self._steps_index = _EsIndex(client, step_index_basename)
 
     def index_job_steps(self, steps: list[JobStep]):
         step_events = (StepEvent.create_from_job_step(s).dict() for s in steps)
         self._steps_index.index(step_events)
 
-    def index_prowjobs(self, jobs: list[ProwJob]):
-        job_events = (JobEvent.create_from_prowjob(j).dict() for j in jobs)
+    def index_prow_jobs(self, jobs: list[ProwJob]):
+        job_events = (JobEvent.create_from_prow_job(j).dict() for j in jobs)
         self._jobs_index.index(job_events)
 
     def scan_build_ids(self) -> set[str]:

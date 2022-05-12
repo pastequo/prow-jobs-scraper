@@ -1,0 +1,70 @@
+  {
+    "items": [
+      {
+        "kind": "ProwJob",
+        "apiVersion": "prow.k8s.io/v1",
+        "metadata": {
+          "name": "664c1896-d05e-11ec-b354-0a580a831155",
+          "namespace": "ci",
+          "uid": "c4fb175e-7a42-4dbe-ba3c-84e6726767b6",
+          "resourceVersion": "1983660378",
+          "generation": 6,
+          "creationTimestamp": "2022-05-10T12:40:40Z"
+        },
+        "spec": {
+          "type": "presubmit",
+          "agent": "kubernetes",
+          "cluster": "build02",
+          "namespace": "ci",
+          "job": "pull-ci-openshift-installer-master-e2e-metal-assisted",
+          "refs": {
+            "org": "openshift",
+            "repo": "installer",
+            "repo_link": "https://github.com/openshift/installer",
+            "base_ref": "master",
+            "base_sha": "7cf5db3347f44473fa3fc3bb2df5293ff9657c84",
+            "base_link": "https://github.com/openshift/installer/commit/7cf5db3347f44473fa3fc3bb2df5293ff9657c84",
+            "pulls": [
+              {
+                "number": 5877,
+                "author": "patrickdillon",
+                "sha": "d079f31255caefa060ef9dcd682e362ce2afc6d4",
+                "title": "WIP: Testing. Do not merge",
+                "link": "https://github.com/openshift/installer/pull/5877",
+                "commit_link": "https://github.com/openshift/installer/pull/5877/commits/d079f31255caefa060ef9dcd682e362ce2afc6d4",
+                "author_link": "https://github.com/patrickdillon"
+              }
+            ]
+          },
+          "report": true,
+          "context": "ci/prow/e2e-metal-assisted",
+          "rerun_command": "/test e2e-metal-assisted",
+          "pod_spec": {
+            "containers": [
+              {
+                "name": "",
+                "resources": {}
+              }
+            ]
+          },
+          "prowjob_defaults": {
+            "tenant_id": "GlobalDefaultID"
+          }
+        },
+        "status": {
+          "startTime": "2022-05-10T12:40:40Z",
+          "pendingTime": "2022-05-10T12:40:40Z",
+          "state": "success",
+          "description": "Job triggered.",
+          "url": "https://prow.ci.openshift.org/view/gs/origin-ci-test/pr-logs/pull/openshift_installer/5877/pull-ci-openshift-installer-master-e2e-metal-assisted/1524006506834432000",
+          "pod_name": "664c1896-d05e-11ec-b354-0a580a831155",
+          "build_id": "1524006506834432000",
+          "prev_report_states": {
+            "gcsk8sreporter": "pending",
+            "gcsreporter": "pending",
+            "github-reporter": "pending"
+          }
+        }
+      }
+    ]
+  }
