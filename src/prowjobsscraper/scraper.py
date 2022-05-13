@@ -1,7 +1,7 @@
 import logging
 import re
 
-from prowjobscraper import event, prowjob, step
+from prowjobsscraper import event, prowjob, step
 
 logger = logging.getLogger(__name__)
 

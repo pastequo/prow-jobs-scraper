@@ -5,8 +5,8 @@ import pkg_resources
 from opensearchpy import OpenSearch, helpers
 from pydantic import BaseModel
 
-from prowjobscraper.prowjob import ProwJob
-from prowjobscraper.step import JobStep
+from prowjobsscraper.prowjob import ProwJob
+from prowjobsscraper.step import JobStep
 
 
 class JobDetails(BaseModel):

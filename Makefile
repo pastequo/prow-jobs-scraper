@@ -1,10 +1,10 @@
 install:
 	pip install .
 
-install-tests:
-	pip install .[test]
+install-unit-tests:
+	pip install .[test-runner]
 
-tests: install-tests
+unit-tests: install-unit-tests
 	tox
 
 install-lint:
@@ -20,4 +20,4 @@ format:
 mypy:
 	mypy --non-interactive --install-types src/
 
-.PHONY: install install-test test install-lint lint format mypy
+.PHONY: install install-unit-tests unit-tests install-lint lint format mypy

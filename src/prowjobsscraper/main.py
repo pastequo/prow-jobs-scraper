@@ -4,7 +4,7 @@ import sys
 from google.cloud import storage  # type: ignore
 from opensearchpy import OpenSearch
 
-from prowjobscraper import config, event, prowjob, scraper, step
+from prowjobsscraper import config, event, prowjob, scraper, step
 
 
 def main() -> None:

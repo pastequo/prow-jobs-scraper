@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools_scm]
 
 [project]
-name = "prow-job-scraper"
+name = "prow-jobs-scraper"
 description = "Scrape Prow for job results and export them to elasticsearch"
 readme = "README.md"
 keywords = ["prow"]
@@ -21,11 +21,13 @@ dependencies = [
 dynamic = ["version"]
 
 [project.scripts]
-prow-job-scraper = "prowjobscraper.main:main"
+prow-jobs-scraper = "prowjobsscraper.main:main"
 
 [project.optional-dependencies]
-test-runner = ["tox"]
-lint = ["black", "isort", "mypy"]
+test-runner = ["tox==3.25.0"]
+unit-tests = ["pytest==7.1.2", "pytest-cov==3.0.0", "pytest-httpserver==1.0.4"]
+coverage = ["coverage[toml]==6.3.3"]
+lint = ["black==22.3.0", "isort==5.10.1", "mypy==0.950"]
 
 [tool.tox]
 legacy_tox_ini = """
@@ -35,23 +37,20 @@ envlist = clean,python3.9,report
 [testenv]
 usedevelop=True
 commands = pytest --cov=src --cov-append --cov-report=term-missing --junitxml=junit-{envname}.xml --junit-prefix={envname}
-deps = 
-    pytest
-    pytest-cov
-    pytest-httpserver
+deps = .[unit-tests]
 depends =
     {python3.9}: clean
     report: python3.9
 
 [testenv:report]
-deps = coverage[toml]
+deps = .[coverage]
 skip_install = true
 commands =
     coverage report
     coverage html
 
 [testenv:clean]
-deps = coverage[toml]
+deps = .[coverage]
 skip_install = true
 commands = coverage erase
 """

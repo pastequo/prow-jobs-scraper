@@ -4,7 +4,7 @@ import pkg_resources
 import pytest
 from pytest_httpserver import HTTPServer
 
-from prowjobscraper import prowjob, scraper, step
+from prowjobsscraper import prowjob, scraper, step
 
 
 def test_non_assisted_jobs_are_filtered_out():

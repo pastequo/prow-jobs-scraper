@@ -6,7 +6,7 @@ import pytest
 from pydantic import ValidationError
 from pytest_httpserver import HTTPServer
 
-from prowjobscraper import prowjob
+from prowjobsscraper import prowjob
 
 INVALID_RESPONSE_FROM_PROW: Final[
     str

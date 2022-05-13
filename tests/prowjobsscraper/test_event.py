@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, call, patch
 
 import pkg_resources
 
-from prowjobscraper import event, step
+from prowjobsscraper import event, step
 
 
 def test_indices_should_be_created_when_required():
