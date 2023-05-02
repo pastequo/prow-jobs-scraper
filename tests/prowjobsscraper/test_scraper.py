@@ -65,7 +65,7 @@ def test_job_filtering(
     )
 
     event_store = MagicMock()
-    event_store.scan_build_ids.return_value = []
+    event_store.scan_build_ids_from_index.return_value = []
 
     step_extractor = MagicMock()
     step_extractor.parse_prow_jobs.return_value = []
@@ -99,7 +99,7 @@ def test_existing_jobs_in_event_store_are_filtered_out():
     )
 
     event_store = MagicMock()
-    event_store.scan_build_ids.return_value = [jobs.items[0].status.build_id]
+    event_store.scan_build_ids_from_index.return_value = [jobs.items[0].status.build_id]
 
     step_extractor = MagicMock()
     step_extractor.parse_prow_jobs.return_value = []
@@ -233,7 +233,7 @@ def test_should_index_usage():
     prow_jobs.items = []
 
     scrape.execute(prow_jobs)
-    assert len(event_store.index_equinix_usages.call_args[0][0]) == 3
+    assert len(event_store.index_equinix_usages.call_args[0][0]) == 2
 
 
 def test_jobs_and_steps_are_indexed():
